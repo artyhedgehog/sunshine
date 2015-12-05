@@ -43,7 +43,6 @@ public class ForecastFragment extends Fragment {
         mForecastDataAdapter = new ArrayAdapter<>(getActivity(), R.layout.list_item_forecast,
                                                   R.id.list_item_forecast_textview,
                                                   new ArrayList<String>());
-        refreshForecast();
         forecastListView.setAdapter(mForecastDataAdapter);
         forecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -56,6 +55,12 @@ public class ForecastFragment extends Fragment {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        refreshForecast();
     }
 
     @Override
