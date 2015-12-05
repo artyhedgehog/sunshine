@@ -1,7 +1,9 @@
 package ru.gushi.android.sunshine.app;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -17,7 +19,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 /**
- * A placeholder fragment containing a simple view.
+ * Displays a 7 days forecast for location set in settings.
  */
 public class ForecastFragment extends Fragment {
 
@@ -56,6 +58,20 @@ public class ForecastFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_refresh) {
+            refreshForecast();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.forecastfragment, menu);
+    }
+
     private void refreshForecast() {
         new FetchWeatherForecastTask() {
             @Override protected void onPostExecute(String[] result) {
@@ -72,21 +88,18 @@ public class ForecastFragment extends Fragment {
                 mForecastDataAdapter.notifyDataSetChanged();
                 mForecastDataAdapter.setNotifyOnChange(true);
             }
-        }.execute("94043");
+        }.execute(getStringSetting(R.string.pref_location_key, R.string.pref_location_default));
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_refresh) {
-            refreshForecast();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.forecastfragment, menu);
+    /**
+     * Get string setting from default shared preferences.
+     * @param keyStringId id of a string containing the preference key
+     * @param defaultValueStringId id of a string containing default value
+     * @return Returns saved preference
+     */
+    private String getStringSetting(int keyStringId, int defaultValueStringId) {
+        final SharedPreferences preferences;
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return preferences.getString(getString(keyStringId), getString(defaultValueStringId));
     }
 }
-
