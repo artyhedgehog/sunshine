@@ -93,7 +93,8 @@ public class ForecastFragment extends Fragment {
                 mForecastDataAdapter.notifyDataSetChanged();
                 mForecastDataAdapter.setNotifyOnChange(true);
             }
-        }.execute(getStringSetting(R.string.pref_location_key, R.string.pref_location_default));
+        }.execute(getStringSetting(R.string.pref_location_key, R.string.pref_location_default),
+                  getStringSetting(R.string.pref_units_key, R.string.pref_units_default));
     }
 
     /**

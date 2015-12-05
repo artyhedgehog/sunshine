@@ -40,6 +40,8 @@ public abstract class FetchWeatherForecastTask extends AsyncTask<String, Void, S
         if (params.length == 0) {
             return null;
         }
+        final String postcode = params[0];
+        final String units = (params.length == 1) ? "metric" : params[1];
 
         HttpURLConnection urlConnection = null;
         BufferedReader reader = null;
@@ -48,12 +50,11 @@ public abstract class FetchWeatherForecastTask extends AsyncTask<String, Void, S
             // Construct the URL for the OpenWeatherMap query
             // Possible parameters are available at OWM's forecast API page, at
             // http://openweathermap.org/API#forecast
-            final String postcode = params[0];
             final int daysNum = 7;
             final Uri.Builder uriBuilder = new Uri.Builder().scheme("http").path(PATH_FORECAST);
             uriBuilder.appendQueryParameter(PARAM_QUERY, postcode);
             uriBuilder.appendQueryParameter(PARAM_MODE, "json");
-            uriBuilder.appendQueryParameter(PARAM_UNITS, "metric");
+            uriBuilder.appendQueryParameter(PARAM_UNITS, units);
             uriBuilder.appendQueryParameter(PARAM_DAYS, Integer.toString(daysNum));
             uriBuilder.appendQueryParameter(PARAM_TOKEN, API_TOKEN);
             final String uri = uriBuilder.build().toString();
