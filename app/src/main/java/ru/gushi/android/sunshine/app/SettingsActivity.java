@@ -42,9 +42,8 @@ public class SettingsActivity extends PreferenceActivity
         // Trigger the listener immediately with the preference's
         // current value.
         onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+                           PreferenceManager.getDefaultSharedPreferences(preference.getContext())
+                                            .getString(preference.getKey(), ""));
     }
  
     @Override

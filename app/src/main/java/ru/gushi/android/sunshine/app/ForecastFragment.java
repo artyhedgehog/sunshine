@@ -2,6 +2,7 @@ package ru.gushi.android.sunshine.app;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -65,11 +66,26 @@ public class ForecastFragment extends Fragment {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_refresh) {
+        switch (item.getItemId()) {
+        case R.id.action_refresh:
             refreshForecast();
-            return true;
+            break;
+        case R.id.action_map:
+            showPreferredLocationOnMap();
+            break;
+        default:
+            return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
+        return true;
+    }
+
+    private void showPreferredLocationOnMap() {
+        final String preferredLocation = getStringSetting(R.string.pref_location_key,
+                                                          R.string.pref_location_default);
+        final Uri uri = new Uri.Builder().scheme("geo").path("0,0")
+                                         .appendQueryParameter("q", preferredLocation)
+                                         .build();
+        startActivity(new Intent(Intent.ACTION_VIEW, uri));
     }
 
     @Override
