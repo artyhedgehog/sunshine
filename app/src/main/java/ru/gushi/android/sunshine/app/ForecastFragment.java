@@ -1,10 +1,8 @@
 package ru.gushi.android.sunshine.app;
 
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -67,25 +65,12 @@ public class ForecastFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-        case R.id.action_refresh:
-            refreshForecast();
-            break;
-        case R.id.action_map:
-            showPreferredLocationOnMap();
-            break;
-        default:
-            return super.onOptionsItemSelected(item);
+            case R.id.action_refresh:
+                refreshForecast();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return true;
-    }
-
-    private void showPreferredLocationOnMap() {
-        final String preferredLocation = getStringSetting(R.string.pref_location_key,
-                                                          R.string.pref_location_default);
-        final Uri uri = new Uri.Builder().scheme("geo").path("0,0")
-                                         .appendQueryParameter("q", preferredLocation)
-                                         .build();
-        startActivity(new Intent(Intent.ACTION_VIEW, uri));
     }
 
     @Override
@@ -94,11 +79,13 @@ public class ForecastFragment extends Fragment {
     }
 
     private void refreshForecast() {
+        final Context context = getActivity();
         new FetchWeatherForecastTask() {
-            @Override protected void onPostExecute(String[] result) {
+            @Override
+            protected void onPostExecute(String[] result) {
                 if (null == result) {
                     final int error = R.string.toast_error_fetch_forecast;
-                    Toast.makeText(getActivity(), error, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, error, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 mForecastDataAdapter.setNotifyOnChange(false);
@@ -109,19 +96,9 @@ public class ForecastFragment extends Fragment {
                 mForecastDataAdapter.notifyDataSetChanged();
                 mForecastDataAdapter.setNotifyOnChange(true);
             }
-        }.execute(getStringSetting(R.string.pref_location_key, R.string.pref_location_default),
-                  getStringSetting(R.string.pref_units_key, R.string.pref_units_default));
-    }
-
-    /**
-     * Get string setting from default shared preferences.
-     * @param keyStringId id of a string containing the preference key
-     * @param defaultValueStringId id of a string containing default value
-     * @return Returns saved preference
-     */
-    private String getStringSetting(int keyStringId, int defaultValueStringId) {
-        final SharedPreferences preferences;
-        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        return preferences.getString(getString(keyStringId), getString(defaultValueStringId));
+        }.execute(Settings.getStringSetting(R.string.pref_location_key,
+                                            R.string.pref_location_default, context),
+                  Settings.getStringSetting(R.string.pref_units_key,
+                                            R.string.pref_units_default, context));
     }
 }

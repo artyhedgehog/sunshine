@@ -25,9 +25,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 
 public class DetailActivity extends AppCompatActivity {
+
+    private ShareActionProvider mShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +38,8 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
-                    .commit();
+                                       .add(R.id.container, new PlaceholderFragment())
+                                       .commit();
         }
     }
 
@@ -45,6 +48,9 @@ public class DetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.detail, menu);
+
+        mShareActionProvider
+                = (ShareActionProvider) menu.findItem(R.id.action_share).getActionProvider();
         return true;
     }
 
@@ -56,12 +62,19 @@ public class DetailActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
+    }
 
-        return super.onOptionsItemSelected(item);
+    public void setShareIntent(Intent shareIntent) {
+        if (null != mShareActionProvider) {
+            mShareActionProvider.setShareIntent(shareIntent);
+        }
     }
 
     /**
@@ -77,9 +90,14 @@ public class DetailActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             final View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
             final TextView detailView = (TextView) rootView.findViewById(R.id.forecast_detail_text);
-            final Intent intent = getActivity().getIntent();
+            final DetailActivity activity = (DetailActivity) getActivity();
+            final Intent intent = activity.getIntent();
             if (null != intent && intent.hasExtra(Intent.EXTRA_TEXT)) {
-                detailView.setText(intent.getStringExtra(Intent.EXTRA_TEXT));
+                final String weatherDetails = intent.getStringExtra(Intent.EXTRA_TEXT);
+                detailView.setText(weatherDetails);
+                final Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                activity.setShareIntent(shareIntent.putExtra(Intent.EXTRA_TEXT,
+                                                             weatherDetails + " #SunshineApp"));
             }
             return rootView;
         }

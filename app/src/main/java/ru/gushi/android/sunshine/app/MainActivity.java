@@ -1,8 +1,9 @@
 package ru.gushi.android.sunshine.app;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -24,17 +25,26 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
+        switch (item.getItemId()) {
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            case R.id.action_map:
+                showPreferredLocationOnMap();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
+
+    private void showPreferredLocationOnMap() {
+        final String preferredLocation = Settings.getStringSetting(R.string.pref_location_key,
+                                                                   R.string.pref_location_default,
+                                                                   this);
+        final Uri uri = new Uri.Builder().scheme("geo").path("0,0")
+                                         .appendQueryParameter("q", preferredLocation)
+                                         .build();
+        startActivity(new Intent(Intent.ACTION_VIEW, uri));
+    }
+
 }
