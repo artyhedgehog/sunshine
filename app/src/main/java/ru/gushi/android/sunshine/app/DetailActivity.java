@@ -19,18 +19,19 @@ package ru.gushi.android.sunshine.app;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ShareActionProvider;
 import android.widget.TextView;
 
 public class DetailActivity extends AppCompatActivity {
-
-    private ShareActionProvider mShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,19 +39,15 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                                       .add(R.id.container, new PlaceholderFragment())
+                                       .add(R.id.container, new DetailFragment())
                                        .commit();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.detail, menu);
-
-        mShareActionProvider
-                = (ShareActionProvider) menu.findItem(R.id.action_share).getActionProvider();
         return true;
     }
 
@@ -71,20 +68,27 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    public void setShareIntent(Intent shareIntent) {
-        if (null != mShareActionProvider) {
-            mShareActionProvider.setShareIntent(shareIntent);
-        }
-    }
-
     /**
-     * A placeholder fragment containing a simple view.
+     * Shows weather details for selected day.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class DetailFragment extends Fragment {
 
-        public PlaceholderFragment() {
+        private static final String LOG_TAG = DetailFragment.class.getSimpleName();
+        public static final String MIME_TEXT_PLAIN = "text/plain";
+        private ShareActionProvider mShareActionProvider;
+
+        public DetailFragment() {
+            setHasOptionsMenu(true);
         }
 
+        @Override
+        public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+            getActivity().getMenuInflater().inflate(R.menu.detailfragment, menu);
+            final MenuItem share = menu.findItem(R.id.action_share);
+            mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(share);
+        }
+
+        @SuppressWarnings("deprecation")
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
@@ -92,14 +96,27 @@ public class DetailActivity extends AppCompatActivity {
             final TextView detailView = (TextView) rootView.findViewById(R.id.forecast_detail_text);
             final DetailActivity activity = (DetailActivity) getActivity();
             final Intent intent = activity.getIntent();
+
             if (null != intent && intent.hasExtra(Intent.EXTRA_TEXT)) {
-                final String weatherDetails = intent.getStringExtra(Intent.EXTRA_TEXT);
-                detailView.setText(weatherDetails);
+                final String detail = intent.getStringExtra(Intent.EXTRA_TEXT);
+                detailView.setText(detail);
+
                 final Intent shareIntent = new Intent(Intent.ACTION_SEND);
-                activity.setShareIntent(shareIntent.putExtra(Intent.EXTRA_TEXT,
-                                                             weatherDetails + " #SunshineApp"));
+                shareIntent.setType(MIME_TEXT_PLAIN);
+                shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+                final String hashtag = activity.getString(R.string.text_hashtag_sunshine);
+                setShareIntent(shareIntent.putExtra(Intent.EXTRA_TEXT, detail + " " + hashtag));
             }
+
             return rootView;
+        }
+
+        private void setShareIntent(Intent shareIntent) {
+            if (null != mShareActionProvider) {
+                mShareActionProvider.setShareIntent(shareIntent);
+            } else {
+                Log.d(LOG_TAG, "Failed setting share intent: the action provider is not defined.");
+            }
         }
     }
 }
