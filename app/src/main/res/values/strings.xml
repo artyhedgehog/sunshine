@@ -59,16 +59,11 @@
 
   <string name="pref_units_title">Units</string>
   <string name="pref_units_dialog_title">Temperature units</string>
-  <string name="pref_units_key">units</string>
-  <string-array name="pref_units_entries">
-    <item>Celsius</item>
-    <item>Fahrenheit</item>
-  </string-array>
-  <string-array name="pref_units_values">
-    <item>metric</item>
-    <item>imperial</item>
-  </string-array>
-  <string name="pref_units_default">metric</string>
+  <string name="pref_units_key" translatable="false">units</string>
+  <string name="pref_units_entry_metric">Celsius</string>
+  <string name="pref_units_entry_imperial">Fahrenheit</string>
+  <string name="pref_units_value_metric" translatable="false">metric</string>
+  <string name="pref_units_value_imperial" translatable="false">imperial</string>
 
   <string name="pref_title_system_sync_settings">System sync settings</string>
 
